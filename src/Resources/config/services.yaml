@@ -1,0 +1,23 @@
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+        public: false
+
+    InSquare\PimcorePostBundle\:
+        resource: '../../'
+        exclude:
+            - '../../DependencyInjection/'
+            - '../../Resources/'
+            - '../../Installer.php'
+            - '../../Service/PostSettings.php'
+            - '../../InSquarePimcorePostBundle.php'
+
+    InSquare\PimcorePostBundle\Installer:
+        public: true
+        arguments:
+            $bundle: "@=service('kernel').getBundle('InSquarePimcorePostBundle')"
+
+    InSquare\PimcorePostBundle\Service\PostSettings:
+        arguments:
+            $config: '%in_square_pimcore_post%'

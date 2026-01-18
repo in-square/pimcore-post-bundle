@@ -1,0 +1,10 @@
+# composer
+composer.lock
+vendor
+
+# PhpStorm / IDEA
+.idea
+.idea_modules
+
+# php-cs-fixer
+.php_cs.cache
