@@ -12,10 +12,7 @@ class Post extends Concrete
     {
     }
 
-    /**
-     * @return array<int, PostCategory>|null
-     */
-    public function getCategories(): ?array
+    public function getCategory(): ?PostCategory
     {
     }
 

@@ -45,18 +45,10 @@ final class ArchiveRebuilder
 
             $globalCounts[$year][$month] = ($globalCounts[$year][$month] ?? 0) + 1;
 
-            $categories = $post->getCategories();
-            if (is_array($categories)) {
-                foreach ($categories as $category) {
-                    if (!$category instanceof PostCategory) {
-                        continue;
-                    }
-
-                    $categoryId = $category->getId();
-                    if (null === $categoryId) {
-                        continue;
-                    }
-
+            $category = $post->getCategory();
+            if ($category instanceof PostCategory) {
+                $categoryId = $category->getId();
+                if (null !== $categoryId) {
                     $categoryCounts[$categoryId][$year][$month] = ($categoryCounts[$categoryId][$year][$month] ?? 0) + 1;
                 }
             }

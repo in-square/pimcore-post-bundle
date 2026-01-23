@@ -130,11 +130,11 @@ final class Installer extends SettingsStoreAwareInstaller
         $date->setColumnType('date');
         $date->setUseCurrentDate(false);
 
-        $categories = (new Data\ManyToManyObjectRelation())
-            ->setName('categories')
-            ->setTitle('Categories')
-            ->setClasses([['classes' => self::CLASS_NAME_CATEGORY]])
-            ->setVisibleFields('title');
+        $category = (new Data\ManyToOneRelation())
+            ->setName('category')
+            ->setTitle('Category')
+            ->setObjectsAllowed(true)
+            ->setClasses([['classes' => self::CLASS_NAME_CATEGORY]]);
 
         $tags = (new Data\ManyToManyObjectRelation())
             ->setName('tags')
@@ -142,7 +142,7 @@ final class Installer extends SettingsStoreAwareInstaller
             ->setClasses([['classes' => self::CLASS_NAME_TAG]])
             ->setVisibleFields('title');
 
-        $mainPanel->setChildren([$title, $date, $categories, $tags]);
+        $mainPanel->setChildren([$title, $date, $category, $tags]);
         $rootPanel->setChildren([$mainPanel]);
 
         $class = new ClassDefinition();
