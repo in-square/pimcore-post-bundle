@@ -6,6 +6,7 @@ namespace InSquare\PimcorePostBundle\Service;
 
 use Pimcore\Model\DataObject\Post;
 use Pimcore\Model\DataObject\Service as DataObjectService;
+use Pimcore\Model\Element\DuplicateFullPathException;
 
 final class PostFolderOrganizer
 {
@@ -14,6 +15,22 @@ final class PostFolderOrganizer
     }
 
     public function moveToDateFolder(Post $post, ?\DateTimeInterface $date = null): bool
+    {
+        if (!$this->assignParentForDate($post, $date)) {
+            return false;
+        }
+
+        try {
+            $post->save();
+        } catch (DuplicateFullPathException) {
+            $post->setKey($this->generateUniqueKey($post));
+            $post->save();
+        }
+
+        return true;
+    }
+
+    public function assignParentForDate(Post $post, ?\DateTimeInterface $date = null): bool
     {
         $date = $date ?? $this->resolveDate($post);
         if (!$date instanceof \DateTimeInterface) {
@@ -32,7 +49,6 @@ final class PostFolderOrganizer
         }
 
         $post->setParent($folder);
-        $post->save();
 
         return true;
     }
@@ -63,5 +79,10 @@ final class PostFolderOrganizer
         }
 
         return $root . '/' . $datePath;
+    }
+
+    protected function generateUniqueKey(Post $post): string
+    {
+        return DataObjectService::getUniqueKey($post);
     }
 }
