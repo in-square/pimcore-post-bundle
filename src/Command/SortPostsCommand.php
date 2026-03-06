@@ -41,7 +41,7 @@ final class SortPostsCommand extends Command
         }
 
         $listing = new PostListing();
-        $listing->setUnpublished(false);
+        $listing->setUnpublished(true);
 
         $moved = 0;
         $skipped = 0;

@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace InSquare\PimcorePostBundle\Service;
 
 use Pimcore\Model\DataObject\Post;
+use Pimcore\Model\DataObject\PostCategory;
 use Pimcore\Model\DataObject\Service as DataObjectService;
+use Pimcore\Model\Element\Service as ElementService;
 use Pimcore\Model\Element\DuplicateFullPathException;
 
 final class PostFolderOrganizer
@@ -37,7 +39,7 @@ final class PostFolderOrganizer
             return false;
         }
 
-        $folderPath = $this->buildTargetPath($date);
+        $folderPath = $this->buildTargetPath($post, $date);
         $folder = DataObjectService::createFolderByPath($folderPath);
 
         if (null === $folder) {
@@ -67,18 +69,39 @@ final class PostFolderOrganizer
         return $value instanceof \DateTimeInterface ? $value : null;
     }
 
-    private function buildTargetPath(\DateTimeInterface $date): string
+    private function buildTargetPath(Post $post, \DateTimeInterface $date): string
     {
         $root = trim($this->settings->getPostRootFolder());
         $root = '/' . trim($root, '/');
 
+        $categorySegment = $this->resolveCategorySegment($post);
         $datePath = $date->format('Y/m/d');
 
-        if ($root === '/') {
-            return '/' . $datePath;
+        $path = trim($root, '/');
+        if ($categorySegment !== null) {
+            $path = trim($path . '/' . $categorySegment, '/');
+        }
+        $path = trim($path . '/' . $datePath, '/');
+
+        return '/' . $path;
+    }
+
+    private function resolveCategorySegment(Post $post): ?string
+    {
+        if (!method_exists($post, 'getCategory')) {
+            return null;
         }
 
-        return $root . '/' . $datePath;
+        $category = $post->getCategory();
+        if (!$category instanceof PostCategory) {
+            return null;
+        }
+
+        $candidate = (string) $category->getKey();
+
+        $valid = ElementService::getValidKey($candidate, 'object');
+
+        return $valid !== '' ? $valid : null;
     }
 
     protected function generateUniqueKey(Post $post): string
